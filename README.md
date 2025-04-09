@@ -22,7 +22,7 @@ This tool converts PCAP (Packet Capture) files to CSV (Comma-Separated Values) f
 
 1. Clone this repository:
    ```
-   git clone https://github.com/Halcy0nic/pcap2csv.git
+   git clone https://github.com/racoltdev/pcap2csv.git
    cd pcap2csv
    ```
 
