@@ -4,6 +4,27 @@ import argparse
 from collections  import OrderedDict
 import os
 import sys
+import time
+
+def progress_bar(completed, total, start_time, bar_length=40):
+	progress = int((completed / total) * bar_length)
+	done = "█" * progress
+	not_done = "-" * (bar_length - progress)
+	bar = done + not_done
+
+	percent = f"{((completed / total) * 100):.2f}%"
+
+	current_time = int(time.time())
+	elapsed_time = current_time - start_time
+	format_elapsed = time.strftime("%H:%M:%S", time.gmtime(elapsed_time))
+
+	estimated_end_time = 0;
+	# Catch divide by zero errors
+	if (completed != 0):
+		estimated_end_time = int(elapsed_time * (total / completed))
+	estimated_end_format =  time.strftime("%H:%M:%S", time.gmtime(estimated_end_time))
+
+	sys.stdout.write(f"\r\t{percent} [{bar}] | {format_elapsed}<{estimated_end_format}")
 
 def pcap_to_csv(input_file, output_file):
 	file_size = os.path.getsize(input_file)
@@ -18,7 +39,10 @@ def pcap_to_csv(input_file, output_file):
 
 	scanned_running_sum = 0
 
+	start_time = int(time.time())
 	print("Scanning all packets to initialize fields")
+	print("Field initialization progress estimate:")
+	progress_bar(scanned_running_sum, file_size, start_time)
 	for packet_number, packet in enumerate(capture, start=1):
 		fields = []
 
@@ -37,8 +61,9 @@ def pcap_to_csv(input_file, output_file):
 		master_fields.update(fields)
 
 		if packet_number % 5000 == 0:
-			print(f"\tField initialization progress estimate: {((scanned_running_sum / file_size) * 100):.2f}%")
+			progress_bar(scanned_running_sum, file_size, start_time)
 
+	print()
 	print("First pass completed. All fields initialized")
 	print("Writing packet data to csv")
 	field_names = sorted(master_fields)
@@ -46,6 +71,10 @@ def pcap_to_csv(input_file, output_file):
 	with open(output_file, 'w', newline='') as csvfile:
 		writer = csv.DictWriter(csvfile, fieldnames=field_names)
 		writer.writeheader()
+
+		start_time = int(time.time())
+		print("CSV writing progress estimate: ")
+		progress_bar(0, total_packets, start_time)
 
 		for packet_number, packet in enumerate(capture, start=1):
 			# Fill in missing fields with empty strings
@@ -62,8 +91,9 @@ def pcap_to_csv(input_file, output_file):
 			writer.writerow(row)
 
 			if packet_number % 500 == 0:
-				print(f"\tWrote {packet_number} packets to CSV. Progress: {((packet_number / total_packets) * 100):.2f}%")
+				progress_bar(packet_number, total_packets, start_time)
 
+	print()
 	print(f"Conversion complete. Output saved to {output_file}")
 
 
