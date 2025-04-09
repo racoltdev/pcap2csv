@@ -25,6 +25,7 @@ def progress_bar(completed, total, start_time, bar_length=40):
 	estimated_end_format =  time.strftime("%H:%M:%S", time.gmtime(estimated_end_time))
 
 	sys.stdout.write(f"\r\t{percent} [{bar}] | {format_elapsed}<{estimated_end_format}")
+	sys.stdout.flush()
 
 def pcap_to_csv(input_file, output_file):
 	file_size = os.path.getsize(input_file)
