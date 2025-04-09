@@ -57,7 +57,6 @@ The script will create a CSV file with the following characteristics:
 
 ## Limitations
 
-- Large PCAP files may require significant memory and processing time
 - The tool attempts to extract all fields, which may result in a very wide CSV file
 
 ## Contributing
